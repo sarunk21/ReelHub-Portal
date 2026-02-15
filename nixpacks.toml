@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["php74", "php74Extensions.mbstring", "php74Extensions.pdo_mysql", "php74Extensions.bcmath", "php74Extensions.gd", "composer", "nodejs"]
+
+[phases.build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "npm install"
+]
+
+[start]
+cmd = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
