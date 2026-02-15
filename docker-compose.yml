@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: reelhub-portal
+    container_name: reelhub-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - reelhub-network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    container_name: reelhub-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: reelhub
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: reelhub
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - reelhub-network
+
+networks:
+  reelhub-network:
+    driver: bridge
+
+volumes:
+  db_data:
