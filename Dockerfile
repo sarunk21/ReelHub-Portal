@@ -19,6 +19,9 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Setup Apache MPM Prefork (Fix for MPM loaded error)
+RUN a2dismod mpm_event && a2dismod mpm_worker && a2enmod mpm_prefork
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -27,6 +30,9 @@ WORKDIR /var/www/html
 
 # Copy application code
 COPY . /var/www/html
+
+# Install dependencies via Composer
+RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions for Zeabur/Production
 # We authorize www-data to own the files
@@ -37,7 +43,7 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache DocumentRoot to point to public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf.conf || true
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf || true
 
 # Expose port 80
 EXPOSE 80
