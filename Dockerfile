@@ -20,7 +20,7 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 RUN a2enmod rewrite
 
 # Setup Apache MPM Prefork (Fix for MPM loaded error)
-RUN a2dismod mpm_event && a2dismod mpm_worker && a2enmod mpm_prefork
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_worker.load && a2enmod mpm_prefork
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
